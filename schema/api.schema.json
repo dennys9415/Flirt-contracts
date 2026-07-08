@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/dennys9415/Flirt-contracts/schema/api.schema.json",
+  "title": "Flirt API contracts",
+  "description": "JSON Schemas for flirt-api payloads. Source of truth for provider structured outputs and client parsing. TypeScript types in src/ mirror these.",
+  "$defs": {
+    "tone": {
+      "type": "string",
+      "enum": ["light_flirt", "deep_flirt", "funny", "confident", "professional"]
+    },
+    "refineAction": {
+      "type": "string",
+      "enum": ["shorter", "funnier", "more_direct"]
+    },
+    "plan": {
+      "type": "string",
+      "enum": ["free", "pro", "premium"]
+    },
+    "suggestion": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string", "minLength": 1 },
+        "style": { "type": "string" }
+      },
+      "required": ["text", "style"],
+      "additionalProperties": false
+    },
+    "modelSuggestionsOutput": {
+      "description": "The exact schema every AI provider must force the model to return (SUGGESTIONS_SCHEMA in flirt-api).",
+      "type": "object",
+      "properties": {
+        "suggestions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/suggestion" }
+        }
+      },
+      "required": ["suggestions"],
+      "additionalProperties": false
+    },
+    "generateRepliesResponse": {
+      "type": "object",
+      "properties": {
+        "tone": { "$ref": "#/$defs/tone" },
+        "intent": { "type": "string", "enum": ["reply", "rewrite"] },
+        "suggestions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "items": { "$ref": "#/$defs/suggestion" }
+        },
+        "provider": { "type": "string" },
+        "model": { "type": "string" }
+      },
+      "required": ["tone", "intent", "suggestions", "provider", "model"],
+      "additionalProperties": false
+    },
+    "usageSummary": {
+      "type": "object",
+      "properties": {
+        "plan": { "$ref": "#/$defs/plan" },
+        "used": { "type": "integer", "minimum": 0 },
+        "limit": { "type": ["integer", "null"] },
+        "enforced": { "type": "boolean" },
+        "resetsAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["plan", "used", "limit", "enforced", "resetsAt"],
+      "additionalProperties": false
+    },
+    "apiError": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "object",
+          "properties": {
+            "code": { "type": "string" },
+            "message": { "type": "string" }
+          },
+          "required": ["code", "message"]
+        }
+      },
+      "required": ["error"]
+    }
+  }
+}
