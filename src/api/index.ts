@@ -16,17 +16,32 @@ export interface DeviceAuthRequest {
   platform: 'ios';
 }
 
-export interface EmailAuthRequest {
+export interface RegisterRequest {
   email: string;
   /** 8–128 chars. */
   password: string;
+  /** Optional handle: /^[a-z0-9_]{3,30}$/ (added 0.5.0). */
+  username?: string;
   /** The calling device gets linked to the account. */
   deviceIdentifier: string;
 }
 
+/** Login with email OR username — at least one (username added 0.5.0). */
+export interface LoginRequest {
+  email?: string;
+  username?: string;
+  password: string;
+  deviceIdentifier: string;
+}
+
+/** @deprecated 0.5.0 — use RegisterRequest / LoginRequest. */
+export type EmailAuthRequest = RegisterRequest;
+
 export interface AuthUser {
   id: string;
   email: string;
+  /** null when the account has no handle (added 0.5.0). */
+  username: string | null;
   plan: Plan;
 }
 
@@ -69,6 +84,8 @@ export interface GenerateRepliesResponse {
   suggestions: Suggestion[];
   provider: string;
   model: string;
+  /** BYOK: whose key served this request (added 0.5.0). */
+  keySource: 'user_key' | 'system';
 }
 
 export interface RefineRequest {
@@ -89,6 +106,8 @@ export interface RefineResponse {
 export interface UserProfile {
   id: string;
   email: string;
+  /** Added 0.5.0. */
+  username: string | null;
   displayName: string | null;
   plan: Plan;
   personality: Record<string, unknown> | null;
@@ -162,4 +181,28 @@ export interface VerifySubscriptionResponse {
 
 export interface HealthResponse {
   status: 'ok';
+}
+
+// ---------------------------------------------------------------------------
+// AI settings — BYOK (added 0.5.0)
+// ---------------------------------------------------------------------------
+
+export type UserSelectableProvider = 'openai' | 'anthropic' | 'gemini';
+
+export interface UpsertAiSettingsRequest {
+  provider: UserSelectableProvider;
+  /** Stored encrypted at rest; never echoed back. */
+  apiKey: string;
+  model?: string;
+}
+
+export interface AiSettingsView {
+  provider: UserSelectableProvider;
+  model: string | null;
+  /** e.g. "sk-a…mnop" — the full key is never returned. */
+  apiKeyMasked: string;
+}
+
+export interface AiSettingsResponse {
+  settings: AiSettingsView | null;
 }

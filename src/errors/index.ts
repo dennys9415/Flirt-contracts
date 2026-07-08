@@ -15,5 +15,8 @@ export const API_ERROR_CODES = [
   'account_required',
   'unknown_product',
   'verification_unavailable',
+  'username_taken',
+  'unknown_provider',
+  'byok_unavailable',
 ] as const;
 export type ApiErrorCode = (typeof API_ERROR_CODES)[number];
